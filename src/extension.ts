@@ -25,13 +25,42 @@ export function activate(context: vscode.ExtensionContext) {
 			const workDir = path.dirname(fileName); // 当前文件的绝对路径
 			// 首先查询 工作区名称
 			const workspace = getWorkSpaceName(workDir);
+
 			// 通过工作区名称在配置内查找配置文件                     // 失败则查找 文件夹内是否有默认名称配置文件
 			const ConfigFile = workspace ? getConfigFile(workspace) : '';
-			
-			const webpackAliasConfig = ConfigFile ? require(ConfigFile).resolve.alias || {} : {}; // 获取配置文件
-			
-			// 最后查找配置项是否有匹配，如果查到配置文件则使用配置项对文件内配置进行覆盖，没有查到则返回配置项，不管是否为空
-			const aliasConfig = Object.assign(webpackAliasConfig,getVscodeConfig(workspace.name));
+			let aliasConfig={};
+			// 有配置才进
+			if(ConfigFile){
+				let webpackAliasConfigAlias ={};
+				// tslint:disable-next-line: class-name
+				interface webpackAliasConfigI {
+					resolve: {alias: object};
+				}
+				let webpackAliasConfig: webpackAliasConfigI = {
+					resolve: {
+						alias: {}
+					}
+				};
+				webpackAliasConfig = require(ConfigFile); // 获取配置文件
+
+				if(typeof webpackAliasConfig === 'function'){
+					vscode.window.showErrorMessage('wepack config 文件 返回数据格式是 fnction 无法解析');
+				}else if(!webpackAliasConfig){
+					vscode.window.showErrorMessage('webpack config not find');
+				}else{
+					
+					try {
+						webpackAliasConfigAlias = ConfigFile ? webpackAliasConfig.resolve.alias : {}; // 获取配置文件
+					} catch (e) {
+						vscode.window.showErrorMessage('webpack config not find alias ');
+						console.log(e);
+					}
+				}
+				// 最后查找配置项是否有匹配，如果查到配置文件则使用配置项对文件内配置进行覆盖，没有查到则返回配置项，不管是否为空
+				aliasConfig = Object.assign(webpackAliasConfigAlias,getVscodeConfig(workspace.name));
+			}else{
+				aliasConfig = getVscodeConfig(workspace.name);
+			}
 			
 			let aliaName = filepathArr[1]; // 匹配的字符串
 			if(/^@.*\/*/.test(aliaName)){

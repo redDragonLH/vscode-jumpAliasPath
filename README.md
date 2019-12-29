@@ -15,6 +15,8 @@
 ## Configuration
 在 `settings.json`内的配置项
 
+**请谨慎设置`default`项**
+
 ### 映射关系
 `fileAliasSetting.aliasMap` 设置映射关系,使用~~相对路径~~（暂时使用 绝对路径，后期适配分组与相对路径），也会查找webpack config 文件，不过会以此配置为主，同名项会覆盖 webpack config 文件（暂时）
 
@@ -46,6 +48,8 @@
 ### 指示 webpack config 文件名称
 `fileAliasSetting.configPos`指示 webpack config 文件名称，键名为项目文件夹名，值为 `webpack config` 文件名
 
+*暂不支持返回函数的配置文件*
+
         "fileAliasSetting.configPos": {
             "项目根目录":"webpack 配置项文件名",
         },
@@ -54,7 +58,7 @@
 
         "fileAliasSetting.configPos": {
             "webpack-project-name":"webpack.config.js",
-            "vue-project-name": "build/webpack.config.dev.js" // 不要带相对或绝对符号
+            "vue-project-name": "build\\webpack.config.dev.js" // 不要带相对或绝对符号
             "default":"webpack.config.js",  // 默认webpack 配置文件名，可填可不填
         },
 
